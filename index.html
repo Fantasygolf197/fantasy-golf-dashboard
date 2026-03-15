@@ -32,7 +32,18 @@ border-collapse:collapse;
 th,td{
 padding:10px;
 border-bottom:1px solid #334155;
+text-align:left;
 }
+
+.top7{
+color:#22c55e;
+font-weight:bold;
+}
+
+.top20{
+color:#38bdf8;
+}
+
 </style>
 </head>
 
@@ -46,39 +57,81 @@ border-bottom:1px solid #334155;
 
 <h2>Your Players</h2>
 
-<table>
+<table id="board">
 
 <tr>
 <th>Player</th>
-<th>Position</th>
+<th>Pos</th>
 <th>Score</th>
 <th>Hole</th>
-</tr>
-
-<tr>
-<td>Scottie Scheffler</td>
-<td>2</td>
-<td>-7</td>
-<td>14</td>
-</tr>
-
-<tr>
-<td>Collin Morikawa</td>
-<td>6</td>
-<td>-5</td>
-<td>12</td>
-</tr>
-
-<tr>
-<td>Rory McIlroy</td>
-<td>14</td>
-<td>-3</td>
-<td>9</td>
+<th>Status</th>
+<th>Pts</th>
 </tr>
 
 </table>
 
 </div>
+
+<script>
+
+const players=[
+"Scottie Scheffler",
+"Rory McIlroy",
+"Collin Morikawa",
+"Xander Schauffele",
+"Tony Finau"
+];
+
+function pts(p){
+
+if(p==1)return 10;
+if(p==2)return 6;
+if(p==3)return 5;
+if(p==4)return 4;
+if(p==5)return 3;
+if(p==6)return 2;
+if(p==7)return 1;
+
+return 0;
+
+}
+
+const demo=[
+
+{n:"Scottie Scheffler",p:2,s:"-7",h:"14"},
+{n:"Collin Morikawa",p:6,s:"-5",h:"12"},
+{n:"Rory McIlroy",p:14,s:"-3",h:"9"},
+{n:"Xander Schauffele",p:18,s:"-2",h:"7"},
+{n:"Tony Finau",p:24,s:"+1",h:"5"}
+
+];
+
+let t=document.getElementById("board");
+
+demo.forEach(x=>{
+
+let st="Outside";
+let c="";
+
+if(x.p<=7){st="Top 7";c="top7";}
+else if(x.p<=20){st="Top 20";c="top20";}
+
+t.innerHTML+=`
+
+<tr class="${c}">
+<td>${x.n}</td>
+<td>${x.p}</td>
+<td>${x.s}</td>
+<td>${x.h}</td>
+<td>${st}</td>
+<td>${pts(x.p)}</td>
+</tr>
+
+`;
+
+});
+
+</script>
 
 </body>
 </html>
