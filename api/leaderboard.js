@@ -1,36 +1,50 @@
 export default async function handler(req, res) {
   try {
-    const response = await fetch("https://site.api.espn.com/apis/v2/sports/golf/pga/leaderboard");
-    const data = await response.json();
+    const headerResponse = await fetch(
+      "https://site.web.api.espn.com/apis/v2/scoreboard/header?sport=golf&league=pga&region=us&lang=en&contentorigin=espn"
+    );
 
-    let competitors = [];
+    const headerData = await headerResponse.json();
 
-    if (data?.events?.[0]?.competitions?.[0]?.competitors) {
-      competitors = data.events[0].competitions[0].competitors;
-    } else if (data?.events?.[0]?.competitors) {
-      competitors = data.events[0].competitors;
-    } else if (data?.competitors) {
-      competitors = data.competitors;
+    const eventId =
+      headerData?.sports?.[0]?.leagues?.[0]?.events?.[0]?.id || null;
+
+    if (!eventId) {
+      return res.status(200).json({
+        players: [],
+        debug: {
+          step: "header",
+          eventId: null,
+          message: "No current PGA event found"
+        }
+      });
     }
 
-    const players = competitors.slice(0, 50).map((p) => ({
-      name: p?.athlete?.displayName || p?.athlete?.fullName || "",
-      pos: p?.status?.position || p?.position || "",
-      score: p?.score || p?.status?.displayValue || "",
-      thru: p?.status?.thru || p?.status?.displayThru || ""
+    const leaderboardResponse = await fetch(
+      `https://site.web.api.espn.com/apis/site/v2/sports/golf/pga/leaderboard/players?event=${eventId}`
+    );
+
+    const leaderboardData = await leaderboardResponse.json();
+
+    const leaderboard = leaderboardData?.leaderboard || [];
+
+    const players = leaderboard.slice(0, 50).map((p) => ({
+      name: p?.displayName || p?.athlete?.displayName || "",
+      pos: p?.position?.displayValue || p?.position || "",
+      score: p?.toPar || p?.total || "",
+      thru: p?.thru || p?.today || ""
     }));
 
-    res.status(200).json({
+    return res.status(200).json({
       players,
       debug: {
-        hasEvents: !!data?.events,
-        hasCompetitions: !!data?.events?.[0]?.competitions,
-        competitorCount: competitors.length
+        step: "leaderboard",
+        eventId,
+        count: players.length
       }
     });
-
   } catch (err) {
-    res.status(500).json({
+    return res.status(500).json({
       error: "Leaderboard fetch failed",
       details: err.message
     });
