@@ -160,3 +160,40 @@ t.innerHTML+=`
 
 </body>
 </html>
+<script>
+
+async function loadLeaderboard(){
+
+const response = await fetch("/api/leaderboard");
+const players = await response.json();
+
+const table = document.querySelector("table");
+table.innerHTML = `
+<tr>
+<th>Player</th>
+<th>Pos</th>
+<th>Score</th>
+<th>Hole</th>
+</tr>
+`;
+
+players.slice(0,10).forEach(p=>{
+
+table.innerHTML += `
+<tr>
+<td>${p.name}</td>
+<td>${p.pos}</td>
+<td>${p.score}</td>
+<td>${p.thru}</td>
+</tr>
+`;
+
+});
+
+}
+
+loadLeaderboard();
+
+setInterval(loadLeaderboard,300000);
+
+</script>
